@@ -1,0 +1,20 @@
+To Do with Prime Bot:
+
+1. Optimize Expansion
+	- Ensure most efficient play in early turns
+
+2. Add the "Defend" in AttackDefend
+	- Don't always attack
+	- Sometimes attack with more than needed to capture
+
+3. Fix AttackDefend + Expand Interaction
+	- DONE Never Deploy Twice to two spaces
+	- DONE Dictionary<Terr, int> saved in OrderManager for Deploys
+
+4. DeployRest
+	- Deploy the rest of the armies for future turns
+	- Error checking - always deploy the remainder to the frontlines
+	- Create Tuple to change attacks made by AttackDefend
+
+5. ManageLeftovers
+	- Move armies to the frontlines.

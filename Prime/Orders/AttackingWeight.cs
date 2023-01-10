@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using WarLight.Shared.AI.Prime.Main;
+using WarLight.Shared.AI.Prime;
 
 namespace WarLight.Shared.AI.Prime.Orders
 {
@@ -12,7 +12,7 @@ namespace WarLight.Shared.AI.Prime.Orders
         public static float Weigh(PrimeBot Bot, TerritoryIDType terrID)
         {
             float weight = 1000f;
-            weight -= 25 * Bot.BonusValue(Bot.WhatBonus(terrID));
+            weight -= 20 * Bot.BonusValue(Bot.WhatBonus(terrID));
             weight += 10 * Bot.ArmiesOnTerritory(terrID);
             return weight;
         }

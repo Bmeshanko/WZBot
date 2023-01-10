@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 
-namespace WarLight.Shared.AI.Prime.Main
+namespace WarLight.Shared.AI.Prime
 {
 
     public class PrimeBot : IWarLightAI
@@ -137,37 +137,9 @@ namespace WarLight.Shared.AI.Prime.Main
             return Standing.Territories[terr].NumArmies.NumArmies;
         }
 
-
-        public int leftToComplete(BonusIDType bonusID)
-        {
-            int neutrals = 0;
-            int armies = 0;
-            foreach(var terr in Map.Bonuses[bonusID].Territories)
-            {
-                if (Standing.Territories[terr].OwnerPlayerID != PlayerID)
-                {
-                    neutrals++;
-                } 
-                else if (ConnectedToInBonusNeutral(terr).Count > 0)
-                {
-                    armies += Standing.Territories[terr].NumArmies.NumArmies - 1;
-                }
-            }
-            if (neutrals == 0)
-            {
-                return 0;
-            }
-            return (3 * neutrals) - armies;
-        }
-
         public BonusIDType WhatBonus(TerritoryIDType terrID)
         {
             return Map.Territories[terrID].PartOfBonuses.First();
-        }
-
-        public List<TerritoryIDType> BranchTerritories(TerritoryIDType terr) // Territories that are only connected to this one
-        {
-            return ConnectedToInBonusNeutral(terr).Where(o => ConnectedToInBonus(o).Count == 1).ToList();
         }
 
         public List<TerritoryIDType> OurTerritories()
@@ -178,57 +150,6 @@ namespace WarLight.Shared.AI.Prime.Main
         public List<TerritoryIDType> OurTerritoriesInBonus(BonusIDType bonus)
         {
             return OurTerritories().Where(o => Map.Bonuses[bonus].Territories.Contains(o)).ToList();
-        }
-
-        public bool FoundEnemy()
-        {
-            foreach (var territory in OurTerritories())
-            {
-                var borders = Map.Territories[territory].ConnectedTo.Keys.ToList();
-                foreach (var terr in borders)
-                {
-                    if (Standing.Territories[terr].OwnerPlayerID != PlayerID && !Standing.Territories[terr].IsNeutral)
-                    {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-        public List<BonusIDType> BonusesWeHave()
-        {
-            List<BonusIDType> bonuses = new List<BonusIDType>();
-            foreach (var bonus in Map.Bonuses)
-            {
-                Boolean toAdd = true;
-                foreach(var terr in bonus.Value.Territories)
-                {
-                    if (Standing.Territories[terr].OwnerPlayerID != PlayerID)
-                    {
-                        toAdd = false;
-                    }
-                }
-                if (toAdd)
-                {
-                    bonuses.Add(bonus.Key);
-                }
-            }
-            return bonuses;
-        }
-        public List<BonusIDType> BonusesWeHaveTerritoriesIn()
-        {
-            List<BonusIDType> bonuses = new List<BonusIDType>();
-            foreach(var bonus in Map.Bonuses)
-            {
-                foreach(var terr in bonus.Value.Territories)
-                {
-                    if (Standing.Territories[terr].OwnerPlayerID == PlayerID && !bonuses.Contains(bonus.Key))
-                    {
-                        bonuses.Add(bonus.Key);
-                    }
-                }
-            }
-            return bonuses;
         }
 
         public List<BonusIDType> BonusNeighbors(BonusIDType bonusID)
@@ -283,12 +204,25 @@ namespace WarLight.Shared.AI.Prime.Main
         {
             return Standing.Territories.Keys
                 .Where(o => Map.Territories[o].ConnectedTo.Keys
-                .Any(c => Standing.Territories[c].OwnerPlayerID == PlayerID)).ToList();
+                .Any(c => Standing.Territories[c].OwnerPlayerID == PlayerID))
+                .Where(e => Standing.Territories[e].OwnerPlayerID != PlayerID).ToList();
         }
 
         public List<TerritoryIDType> EnemyBorders()
         {
             return Borders().Where(o => Standing.Territories[o].OwnerPlayerID != PlayerID && !(Standing.Territories[o].IsNeutral)).ToList();
+        }
+
+        public List<TerritoryIDType> NeutralBorders()
+        {
+            return Borders().Where(o => Standing.Territories[o].OwnerPlayerID != PlayerID && (Standing.Territories[o].IsNeutral)).ToList();
+        }
+
+        public List<TerritoryIDType> EdgeTerritories()
+        {
+            return OurTerritories()
+                .Where(o => Map.Territories[o].ConnectedTo.Keys
+                .Any(c => Borders().Contains(c))).ToList();
         }
     }
 }

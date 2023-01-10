@@ -8,14 +8,13 @@ namespace WarLight.Shared.AI.Prime.Picks
     
     public class MakePicks
     {
-        public Main.PrimeBot Bot;
-
-        public MakePicks(Main.PrimeBot bot)
+        public PrimeBot Bot;
+        public MakePicks(PrimeBot bot)
         {
             this.Bot = bot;
         }
 
-        public float GetWeight(Main.PrimeBot bot, TerritoryIDType terrID)
+        public float GetWeight(PrimeBot bot, TerritoryIDType terrID)
         {
             TerritoryDetails territory = bot.Map.Territories[terrID];
             BonusIDType bonusID = territory.PartOfBonuses.First(); // This will not work with superbonuses.
@@ -37,7 +36,7 @@ namespace WarLight.Shared.AI.Prime.Picks
             return weight;
         }
 
-        public bool hasWasteland(Main.PrimeBot bot, BonusIDType bonusID, TerritoryIDType terrID)
+        public bool hasWasteland(PrimeBot bot, BonusIDType bonusID, TerritoryIDType terrID)
         {
             GameStanding distribution = bot.DistributionStanding;
             
@@ -56,7 +55,7 @@ namespace WarLight.Shared.AI.Prime.Picks
         // If Neighboring bonuses have wastelands, then expansion will be more difficult.
         
 
-        public KeyValuePair<TerritoryIDType, float> applyPenalty(Main.PrimeBot bot, float highest, KeyValuePair<TerritoryIDType, float> weight)
+        public KeyValuePair<TerritoryIDType, float> applyPenalty(PrimeBot bot, float highest, KeyValuePair<TerritoryIDType, float> weight)
         {
             BonusIDType bonus = bot.Map.Territories[weight.Key].PartOfBonuses.First(); // Will not work with superbonuses.
 
@@ -87,7 +86,7 @@ namespace WarLight.Shared.AI.Prime.Picks
             return newWeight;
         }
 
-        public List<TerritoryIDType> Commit(Main.PrimeBot bot)
+        public List<TerritoryIDType> Commit(PrimeBot bot)
         {
             int maxPicks = bot.Settings.LimitDistributionTerritories == 0 ? bot.Map.Territories.Count : (bot.Settings.LimitDistributionTerritories * bot.Players.Values.Count(o => o.State == GamePlayerState.Playing));
             var allAvailable = bot.DistributionStanding.Territories.Values.Where(o => o.OwnerPlayerID == TerritoryStanding.AvailableForDistribution).Select(o => o.ID).ToHashSet(true);

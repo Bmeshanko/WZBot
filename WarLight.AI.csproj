@@ -90,12 +90,13 @@
     <Compile Include="Cowzow\Move\BotOrder.cs" />
     <Compile Include="Cowzow\Move\BotOrderAttackTransfer.cs" />
     <Compile Include="Cowzow\Move\BotOrderDeploy.cs" />
+    <Compile Include="Prime\Attack.cs" />
     <Compile Include="Prime\BonusPath.cs" />
     <Compile Include="Prime\Orders\AttackDefend.cs" />
     <Compile Include="Prime\Orders\AttackingWeight.cs" />
+    <Compile Include="Prime\Orders\DeployRest.cs" />
     <Compile Include="Prime\Orders\ExpansionWeight.cs" />
     <Compile Include="Prime\Orders\Expand.cs" />
-    <Compile Include="Prime\Orders\CreateOrders.cs" />
     <Compile Include="Prime\Orders\OrderManager.cs" />
     <Compile Include="Prime\Orders\PlayCards.cs" />
     <Compile Include="Prime\Picks\EfficiencyCalculator.cs" />

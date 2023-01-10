@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using WarLight.Shared.AI.Prime.Main;
+using WarLight.Shared.AI.Prime;
 
 namespace WarLight.Shared.AI.Prime.Orders
 {
@@ -19,22 +19,17 @@ namespace WarLight.Shared.AI.Prime.Orders
 
         public void Go(int armies)
         {
-            var potentialTargets = Bot.Standing.Territories.Values
-                .Where(o => Bot.Map.Territories[o.ID].ConnectedTo.Keys
-                .Any(c => Bot.Standing.Territories[c].OwnerPlayerID == Bot.PlayerID))
-                .Where(d => d.IsNeutral).ToList();
+            var potentialTargets = Bot.NeutralBorders();
 
             Dictionary<TerritoryIDType, float> weights = new Dictionary<TerritoryIDType, float>();
             foreach (var terr in potentialTargets)
             {
-                var terrID = terr.ID;
-                var bonusID = Bot.WhatBonus(terrID);
-                BonusPath bp = new BonusPath(bonusID, Bot, terrID);
-                bp.Go(); // Evaluate turns to take
-                float weight = ExpansionWeight.Weigh(Bot, terrID, bonusID, bp.turnsToTake);
+                var bonusID = Bot.WhatBonus(terr);
+                
+                float weight = ExpansionWeight.Weigh(Bot, terr);
                 if (weight < 1500)
                 {
-                    weights.Add(terrID, weight);
+                    weights.Add(terr, weight);
                 }
             }
 
@@ -43,11 +38,8 @@ namespace WarLight.Shared.AI.Prime.Orders
                 AILog.Log("Expand", "Weight for Territory " + Bot.Map.Territories[weight.Key].Name + ": " + weight.Value);
             }
 
-            Dictionary<TerritoryIDType, int> deploys = new Dictionary<TerritoryIDType, int>();
-            List<TerritoryIDType> attacks = new List<TerritoryIDType>();
             while (weights.Count > 0)
             {
-                AILog.Log("Expand", "Armies Remaining: " + armies);
                 var expandTo = weights.OrderBy(o => o.Value).First().Key;
                 weights.Remove(expandTo);
 
@@ -55,7 +47,7 @@ namespace WarLight.Shared.AI.Prime.Orders
                 Dictionary<TerritoryIDType, int> potentialDeploys = new Dictionary<TerritoryIDType, int>();
                 foreach (var terr in connectedTerrs)
                 {
-                    if (deploys.ContainsKey(terr) || attacks.Contains(terr))
+                    if (Manager.DeployTracker.ContainsKey(terr) || Attack.HasFrom(Manager.AttackTracker, terr))
                     {
                         potentialDeploys.Add(terr, 1);
                     } 
@@ -74,33 +66,19 @@ namespace WarLight.Shared.AI.Prime.Orders
                         armiesNeededToCapture += (armies - toDeploy);
                         toDeploy = armies;
                     }
-                    if (deploys.ContainsKey(deployOn.Key))
+                    if (Manager.DeployTracker.ContainsKey(deployOn.Key))
                     {
-                        deploys[deployOn.Key] += toDeploy;
+                        Manager.DeployTracker[deployOn.Key] += toDeploy;
                     } 
                     else
                     {
-                        deploys.Add(deployOn.Key, toDeploy);
+                        Manager.DeployTracker.Add(deployOn.Key, toDeploy);
                     }
                     armies -= toDeploy;
                 }
                 if (toDeploy == 0 || toDeploy <= armies)
                 {
-                    attacks.Add(deployOn.Key);
-                    var attackOrder = CreateOrders.MakeAttack(Bot, deployOn.Key, expandTo, armiesNeededToCapture);
-                    if (attackOrder != null)
-                    {
-                        Manager.Moves.Add(attackOrder);
-                    }
-                }
-                
-            }
-            foreach (var deploy in deploys)
-            {
-                var order = CreateOrders.MakeDeploy(Bot, deploy.Key, deploy.Value);
-                if (order != null)
-                {
-                    Manager.Deploys.Add(order);
+                    Manager.AttackTracker.Add(new Attack(deployOn.Key, expandTo, armiesNeededToCapture));
                 }
             }
         }

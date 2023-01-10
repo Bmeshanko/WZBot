@@ -9,7 +9,7 @@ namespace WarLight.Shared.AI.Prime.Picks
     class EfficiencyCalculator
     {
 
-        public int TurnsForBonus(Main.PrimeBot bot, TerritoryIDType starting, BonusIDType bonusID)
+        public int TurnsForBonus(PrimeBot bot, TerritoryIDType starting, BonusIDType bonusID)
         {
             GameStanding distribution = bot.DistributionStanding;
 
@@ -44,7 +44,7 @@ namespace WarLight.Shared.AI.Prime.Picks
          * 1. Are inside the bonus.
          * 2. Border a territory in the HashSet.
          */
-        public HashSet<TerritoryIDType> ExpandInBonus(Main.PrimeBot bot, HashSet<TerritoryIDType> territoriesOwned, BonusIDType bonusID)
+        public HashSet<TerritoryIDType> ExpandInBonus(PrimeBot bot, HashSet<TerritoryIDType> territoriesOwned, BonusIDType bonusID)
         {
             var newTerritoriesOwned = territoriesOwned;
 

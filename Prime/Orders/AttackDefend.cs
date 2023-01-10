@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using WarLight.Shared.AI.Prime.Main;
+using WarLight.Shared.AI.Prime;
 
 namespace WarLight.Shared.AI.Prime.Orders
 {
@@ -26,12 +26,10 @@ namespace WarLight.Shared.AI.Prime.Orders
             foreach (var terr in potentialTargets)
             {
                 float weight = AttackingWeight.Weigh(Bot, terr);
-                AILog.Log("AttackDefend", "Weight for Territory: " + Bot.Map.Territories[terr].Name + " - " + weight);
+                AILog.Log("AttackDefend", "Weight for Territory " + Bot.TerrString(terr) + ": " + weight);
                 weights.Add(terr, weight);
             }
 
-            Dictionary<TerritoryIDType, int> deploys = new Dictionary<TerritoryIDType, int>();
-            List<TerritoryIDType> attacks = new List<TerritoryIDType>();
             while (weights.Count > 0)
             {
                 var expandTo = weights.OrderBy(o => o.Value).First().Key;
@@ -41,7 +39,7 @@ namespace WarLight.Shared.AI.Prime.Orders
                 Dictionary<TerritoryIDType, int> potentialDeploys = new Dictionary<TerritoryIDType, int>();
                 foreach (var terr in connectedTerrs)
                 {
-                    if (deploys.ContainsKey(terr) || attacks.Contains(terr))
+                    if (Manager.DeployTracker.ContainsKey(terr) || Attack.HasFrom(Manager.AttackTracker, terr))
                     {
                         potentialDeploys.Add(terr, 1);
                     }
@@ -60,34 +58,21 @@ namespace WarLight.Shared.AI.Prime.Orders
                         armiesNeededToCapture += (armies - toDeploy);
                         toDeploy = armies;
                     }
-                    if (deploys.ContainsKey(deployOn.Key))
+                    if (Manager.DeployTracker.ContainsKey(deployOn.Key))
                     {
-                        deploys[deployOn.Key] += toDeploy;
+                        Manager.DeployTracker[deployOn.Key] += toDeploy;
                     }
                     else
                     {
-                        deploys.Add(deployOn.Key, toDeploy);
+                        Manager.DeployTracker.Add(deployOn.Key, toDeploy);
                     }
                     armies -= toDeploy;
                 }
                 if (toDeploy == 0 || toDeploy <= armies)
                 {
-                    attacks.Add(deployOn.Key);
-                    var attackOrder = CreateOrders.MakeAttack(Bot, deployOn.Key, expandTo, armiesNeededToCapture);
-                    if (attackOrder != null)
-                    {
-                        Manager.Moves.Add(attackOrder);
-                    }
+                    Manager.AttackTracker.Add(new Attack(deployOn.Key, expandTo, armiesNeededToCapture));
                 }
 
-            }
-            foreach (var deploy in deploys)
-            {
-                var order = CreateOrders.MakeDeploy(Bot, deploy.Key, deploy.Value);
-                if (order != null)
-                {
-                    Manager.Deploys.Add(order);
-                }
             }
         }
     }

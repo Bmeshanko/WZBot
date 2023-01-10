@@ -8,7 +8,7 @@ namespace WarLight.Shared.AI.Prime.Orders
 {
     static class PlayCards
     {
-        public static void Go(Main.PrimeBot Bot, OrderManager Manager)
+        public static void Go(PrimeBot Bot, OrderManager Manager)
         {
             int mustPlay = Bot.CardsMustPlay;
             List<CardInstance> cards = Bot.Cards;

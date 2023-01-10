@@ -23,7 +23,7 @@ namespace WarLight.Shared.AI
                 case "cowzow":
                     return new Cowzow.Bot.CowzowBot();
                 case "prime":
-                    return new Prime.Main.PrimeBot();
+                    return new Prime.PrimeBot();
                 default:
                     throw new Exception("No bot found named " + name + ", supported names are: " + Names.JoinStrings(", "));
             }

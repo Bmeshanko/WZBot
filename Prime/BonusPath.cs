@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WarLight.Shared.AI.Prime.Main
+namespace WarLight.Shared.AI.Prime
 {
     public class BonusPath
     {
