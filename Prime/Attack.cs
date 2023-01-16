@@ -36,5 +36,15 @@ namespace WarLight.Shared.AI.Prime
             }
             return false;
         }
+
+        public static List<Attack> FindFroms(List<Attack> list, TerritoryIDType from)
+        {
+            List<Attack> ret = new List<Attack>();
+            foreach (Attack attack in list)
+            {
+                if (attack.from == from) ret.Add(attack);
+            }
+            return ret;
+        }
     }
 }

@@ -29,7 +29,6 @@ namespace WarLight.Shared.AI.Prime
         public List<GamePlayer> Opponents;
         public int armiesFromReinforcementCards;
 
-
         public String Name()
         {
             return "Prime Version 1.0";
@@ -137,6 +136,12 @@ namespace WarLight.Shared.AI.Prime
             return Standing.Territories[terr].NumArmies.NumArmies;
         }
 
+        public int OurIncome()
+        {
+            PlayerIncomeTracker pit = new PlayerIncomeTracker(Incomes[PlayerID], Map);
+            return pit.FreeArmiesUndeployed + armiesFromReinforcementCards;
+        } 
+
         public BonusIDType WhatBonus(TerritoryIDType terrID)
         {
             return Map.Territories[terrID].PartOfBonuses.First();
@@ -223,6 +228,21 @@ namespace WarLight.Shared.AI.Prime
             return OurTerritories()
                 .Where(o => Map.Territories[o].ConnectedTo.Keys
                 .Any(c => Borders().Contains(c))).ToList();
+        }
+
+        public List<BonusIDType> BonusesStarted()
+        {
+            List<BonusIDType> bonuses = new List<BonusIDType>();
+            foreach(var bonus in Map.Bonuses)
+            {
+                foreach(var terr in bonus.Value.Territories)
+                {
+                    if (Standing.Territories[terr].OwnerPlayerID == PlayerID) {
+                        bonuses.Add(bonus.Key);
+                    }
+                }
+            }
+            return bonuses;
         }
     }
 }

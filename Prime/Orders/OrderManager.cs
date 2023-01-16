@@ -46,6 +46,9 @@ namespace WarLight.Shared.AI.Prime.Orders
             DeployRest dr = new DeployRest(Bot, this);
             dr.Go(armies);
 
+            MoveLeftovers ml = new MoveLeftovers(Bot, this);
+            //ml.Go();
+
             TrackDeploys();
             TrackAttacks();
         }

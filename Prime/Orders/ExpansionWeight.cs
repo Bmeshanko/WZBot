@@ -10,14 +10,17 @@ namespace WarLight.Shared.AI.Prime.Orders
     {
         public static int ArmiesToTake(int armiesOnTerritory, float offensiveKillRate)
         {
-            float defArmies = armiesOnTerritory;
-            float armiesNeeded = defArmies / offensiveKillRate;
-            int ret = 0;
-            if (armiesNeeded - (int) armiesNeeded > 0.5f)
+            if (armiesOnTerritory == 0) return 1;
+            float defensiveArmies = armiesOnTerritory;
+            float armies = 2f;
+            while (true)
             {
-                ret = 1;
+                if (armies * offensiveKillRate >= (armiesOnTerritory - 0.5))
+                {
+                    return (int) armies;
+                }
+                armies++;
             }
-            return ret + (int) armiesNeeded;
         }
 
         public static int ArmiesToTake(TerritoryIDType terrID, PrimeBot bot)
@@ -45,9 +48,14 @@ namespace WarLight.Shared.AI.Prime.Orders
         {
             float weight = 1000f;
             BonusIDType bonusID = Bot.WhatBonus(terrID);
-            BonusPath bp = new BonusPath(bonusID, Bot, terrID);
+            BonusPath bp = new BonusPath(bonusID, Bot);
             bp.Go(); // Evaluate turns to take
             int turnsToTake = bp.turnsToTake;
+
+            if (Bot.BonusValue(bonusID) == 0)
+            {
+                weight += 1000;
+            }
 
             weight -= (Bot.BonusValue(bonusID) * 10);
             weight += (Bot.NumTerritories(bonusID) * 20);
@@ -55,7 +63,9 @@ namespace WarLight.Shared.AI.Prime.Orders
             weight += Bot.Standing.Territories[terrID].NumArmies.NumArmies;
             weight -= Bot.NumberOfTurns * 10;
             weight -= BonusCompletionWeight(Bot, bonusID) * 10;
-            if (Bot.Wastelands().Contains(bonusID)) weight += 500;
+            weight -= (Bot.OurIncome() - bp.armiesToTake) * 50;
+            weight -= Bot.ConnectedToInBonus(terrID).Count;
+            if (Bot.Wastelands().Contains(bonusID)) weight += 800;
             return weight;
         }
     }

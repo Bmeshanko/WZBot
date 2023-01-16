@@ -97,8 +97,10 @@
     <Compile Include="Prime\Orders\DeployRest.cs" />
     <Compile Include="Prime\Orders\ExpansionWeight.cs" />
     <Compile Include="Prime\Orders\Expand.cs" />
+    <Compile Include="Prime\Orders\MoveLeftovers.cs" />
     <Compile Include="Prime\Orders\OrderManager.cs" />
     <Compile Include="Prime\Orders\PlayCards.cs" />
+    <Compile Include="Prime\Orders\PositionalWeight.cs" />
     <Compile Include="Prime\Picks\EfficiencyCalculator.cs" />
     <Compile Include="Prime\PrimeBot.cs" />
     <Compile Include="Prime\Picks\MakePicks.cs" />

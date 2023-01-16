@@ -40,13 +40,9 @@ namespace WarLight.Shared.AI.Prime.Orders
                 foreach (var terr in connectedTerrs)
                 {
                     if (Manager.DeployTracker.ContainsKey(terr) || Attack.HasFrom(Manager.AttackTracker, terr))
-                    {
-                        potentialDeploys.Add(terr, 1);
-                    }
+                    potentialDeploys.Add(terr, 1);
                     else
-                    {
-                        potentialDeploys.Add(terr, Bot.ArmiesOnTerritory(terr));
-                    }
+                    potentialDeploys.Add(terr, Bot.ArmiesOnTerritory(terr));
                 }
                 var deployOn = potentialDeploys.OrderByDescending(o => o.Value).First();
                 int armiesNeededToCapture = ExpansionWeight.ArmiesToTake(expandTo, Bot);
@@ -58,21 +54,11 @@ namespace WarLight.Shared.AI.Prime.Orders
                         armiesNeededToCapture += (armies - toDeploy);
                         toDeploy = armies;
                     }
-                    if (Manager.DeployTracker.ContainsKey(deployOn.Key))
-                    {
-                        Manager.DeployTracker[deployOn.Key] += toDeploy;
-                    }
-                    else
-                    {
-                        Manager.DeployTracker.Add(deployOn.Key, toDeploy);
-                    }
+                    if (Manager.DeployTracker.ContainsKey(deployOn.Key)) Manager.DeployTracker[deployOn.Key] += toDeploy;
+                    else Manager.DeployTracker.Add(deployOn.Key, toDeploy);
                     armies -= toDeploy;
                 }
-                if (toDeploy == 0 || toDeploy <= armies)
-                {
-                    Manager.AttackTracker.Add(new Attack(deployOn.Key, expandTo, armiesNeededToCapture));
-                }
-
+                if (toDeploy == 0 || toDeploy <= armies) Manager.AttackTracker.Add(new Attack(deployOn.Key, expandTo, armiesNeededToCapture));
             }
         }
     }

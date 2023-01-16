@@ -24,24 +24,27 @@ namespace WarLight.Shared.AI.Prime.Orders
             Dictionary<TerritoryIDType, float> weights = new Dictionary<TerritoryIDType, float>();
             foreach(var terr in potentialDeploys)
             {
-                float weight = 0f;
-                foreach(var connection in Bot.Map.Territories[terr].ConnectedTo.Keys)
-                {
-                    if (Bot.NeutralBorders().Contains(connection))
-                    {
-                        weight += ExpansionWeight.Weigh(Bot, connection);
-                    }
-                    else if (Bot.EnemyBorders().Contains(connection))
-                    {
-                        weight += AttackingWeight.Weigh(Bot, connection);
-                    }
-                }
-                weights.Add(terr, weight);
+                weights.Add(terr, PositionalWeight.Weigh(Bot, terr));
             }
 
-            while (weights.Count > 0)
+            while (weights.Count > 0 && armies > 0)
             {
+                var deployOn = weights.OrderBy(o => o.Value).First().Key;
+                weights.Remove(deployOn);
 
+                int toDeploy = 0;
+                
+                if (armies <= 2) toDeploy = armies;
+                else if (armies < 4) toDeploy = 2;
+                else toDeploy = armies - 2;
+
+                if (Manager.DeployTracker.ContainsKey(deployOn)) Manager.DeployTracker[deployOn] += toDeploy;
+                else Manager.DeployTracker.Add(deployOn, toDeploy);
+
+                if (Attack.HasFrom(Manager.AttackTracker, deployOn))
+                    Manager.AttackTracker.Where(o => o.from.Equals(deployOn)).First().AddNumber(toDeploy);
+
+                armies -= toDeploy;
             }
         }
     }
